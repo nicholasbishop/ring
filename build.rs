@@ -335,8 +335,12 @@ fn ring_build_rs_main() {
     let out_dir = PathBuf::from(out_dir);
 
     let arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
-    let os = env::var("CARGO_CFG_TARGET_OS").unwrap();
-    let env = env::var("CARGO_CFG_TARGET_ENV").unwrap();
+    let mut os = env::var("CARGO_CFG_TARGET_OS").unwrap();
+    let mut env = env::var("CARGO_CFG_TARGET_ENV").unwrap();
+    if os == "uefi" {
+        os = "windows".into();
+        env = "gnu".into();
+    }
     let (obj_ext, obj_opt) = if env == MSVC {
         (MSVC_OBJ_EXT, MSVC_OBJ_OPT)
     } else {
@@ -700,7 +704,7 @@ fn nasm(file: &Path, arch: &str, out_file: &Path) -> Command {
         "x86" => ("win32"),
         _ => panic!("unsupported arch: {}", arch),
     };
-    let mut c = Command::new("./target/tools/nasm");
+    let mut c = Command::new("nasm");
     let _ = c
         .arg("-o")
         .arg(out_file.to_str().expect("Invalid path"))
