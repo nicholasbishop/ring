@@ -195,6 +195,11 @@ use self::darwin::fill as fill_impl;
 #[cfg(any(target_os = "fuchsia"))]
 use self::fuchsia::fill as fill_impl;
 
+// TODO
+fn fill_impl(dest: &mut [u8]) -> Result<(), error::Unspecified> {
+    todo!();
+}
+
 #[cfg(any(target_os = "android", target_os = "linux"))]
 mod sysrand_chunk {
     use crate::{c, error};
