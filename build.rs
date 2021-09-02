@@ -430,6 +430,21 @@ fn build_c_code(target: &Target, pregenerated: PathBuf, out_dir: &Path) {
     );
 }
 
+fn get_builder() -> cc::Build {
+    let mut c = cc::Build::new();
+    let target = std::env::var("TARGET").unwrap();
+    let target = match target.as_str() {
+        "i686-unknown-uefi" => Some("i686-unknown-windows-gnu"),
+        "x86_64-unknown-uefi" => Some("x86_64-unknown-windows-gnu"),
+        _ => None,
+    };
+    if let Some(target) = target {
+        c.compiler("clang");
+        c.target("i686-unknown-windows-gnu");
+    }
+    c
+}
+
 fn build_library(
     target: &Target,
     out_dir: &Path,
@@ -455,7 +470,7 @@ fn build_library(
         .map(Path::new)
         .any(|p| need_run(&p, &lib_path, includes_modified))
     {
-        let mut c = cc::Build::new();
+        let mut c = get_builder();
 
         for f in LD_FLAGS {
             let _ = c.flag(&f);
@@ -530,7 +545,7 @@ fn cc(
 ) -> Command {
     let is_musl = target.env.starts_with("musl");
 
-    let mut c = cc::Build::new();
+    let mut c = get_builder();
     let _ = c.include("include");
     match ext {
         "c" => {
