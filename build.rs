@@ -503,7 +503,7 @@ fn get_builder() -> cc::Build {
     };
     if let Some(target) = target {
         c.compiler("clang");
-        c.target("i686-unknown-windows-gnu");
+        c.target(target);
     }
     c
 }
