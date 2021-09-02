@@ -498,6 +498,21 @@ fn build_c_code(
     );
 }
 
+fn get_builder() -> cc::Build {
+    let mut c = cc::Build::new();
+    let target = std::env::var("TARGET").unwrap();
+    let target = match target.as_str() {
+        "i686-unknown-uefi" => Some("i686-unknown-windows-gnu"),
+        "x86_64-unknown-uefi" => Some("x86_64-unknown-windows-gnu"),
+        _ => None,
+    };
+    if let Some(target) = target {
+        c.compiler("clang");
+        c.target("i686-unknown-windows-gnu");
+    }
+    c
+}
+
 fn build_library(
     target: &Target,
     out_dir: &Path,
@@ -515,7 +530,7 @@ fn build_library(
     // Rebuild the library if necessary.
     let lib_path = PathBuf::from(out_dir).join(format!("lib{}.a", lib_name));
 
-    let mut c = cc::Build::new();
+    let mut c = get_builder();
 
     for f in LD_FLAGS {
         let _ = c.flag(f);
@@ -575,7 +590,7 @@ fn obj_path(out_dir: &Path, src: &Path) -> PathBuf {
 }
 
 fn cc(file: &Path, ext: &str, target: &Target, include_dir: &Path, out_file: &Path) -> Command {
-    let mut c = cc::Build::new();
+    let mut c = get_builder();
 
     // FIXME: On Windows AArch64 we currently must use Clang to compile C code
     if target.os == WINDOWS && target.arch == AARCH64 && !c.get_compiler().is_like_clang() {
