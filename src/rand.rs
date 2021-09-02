@@ -196,8 +196,8 @@ use self::darwin::fill as fill_impl;
 use self::fuchsia::fill as fill_impl;
 
 #[cfg(target_os = "uefi")]
-fn fill_impl(dest: &mut [u8]) -> Result<(), error::Unspecified> {
-    todo!();
+fn fill_impl(_dest: &mut [u8]) -> Result<(), error::Unspecified> {
+    unimplemented!();
 }
 
 #[cfg(any(target_os = "android", target_os = "linux"))]
